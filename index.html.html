@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UGC Buddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0C0C10;
+  --surface: #13131A;
+  --surface2: #1C1C26;
+  --surface3: #252530;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.14);
+  --accent: #7C5CFC;
+  --accent-soft: rgba(124,92,252,0.12);
+  --accent-border: rgba(124,92,252,0.35);
+  --amber: #F59E0B;
+  --amber-soft: rgba(245,158,11,0.12);
+  --text: #F0EFF8;
+  --text2: #9997B0;
+  --text3: #5E5C73;
+  --success: #22C55E;
+  --danger: #EF4444;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+}
+html { font-size: 16px; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; line-height: 1.6; }
+
+.layout { max-width: 780px; margin: 0 auto; padding: 0 16px 80px; }
+
+/* API SETUP */
+.api-screen {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.api-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
+  width: 100%; max-width: 480px;
+  text-align: center;
+}
+.api-logo {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+}
+.api-logo svg { width: 26px; height: 26px; fill: var(--accent); }
+.api-card h1 { font-family: 'Sora', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+.api-card p { font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 24px; }
+.api-input-wrap { position: relative; margin-bottom: 12px; }
+.api-input-wrap input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  padding: 12px 44px 12px 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.api-input-wrap input:focus { border-color: var(--accent-border); }
+.api-input-wrap input::placeholder { color: var(--text3); }
+.toggle-eye {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: var(--text3);
+  display: flex; align-items: center;
+}
+.toggle-eye svg { width: 18px; height: 18px; }
+.api-hint {
+  font-size: 12px; color: var(--text3); margin-bottom: 20px; text-align: left;
+}
+.api-hint a { color: var(--accent); text-decoration: none; }
+.api-hint a:hover { text-decoration: underline; }
+.api-error {
+  font-size: 12px; color: var(--danger);
+  margin-bottom: 12px; display: none;
+}
+
+/* HEADER */
+.header { padding: 36px 0 28px; display: flex; align-items: center; gap: 14px; }
+.logo { width: 42px; height: 42px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--accent-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.logo svg { width: 22px; height: 22px; fill: var(--accent); }
+.header-text h1 { font-family: 'Sora', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.header-text p { font-size: 13px; color: var(--text2); margin-top: 1px; }
+.header-right { margin-left: auto; }
+.key-badge {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 99px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3); font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer; transition: all 0.15s;
+}
+.key-badge:hover { border-color: var(--border-hover); color: var(--text2); }
+.key-badge svg { width: 13px; height: 13px; }
+.key-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
+
+/* TABS */
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; }
+.tab { display: flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: 99px; border: 1px solid var(--border); background: transparent; color: var(--text2); font-size: 13px; font-family: 'Inter', sans-serif; font-weight: 500; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
+.tab:hover { border-color: var(--border-hover); color: var(--text); background: var(--surface2); }
+.tab.active { background: var(--accent-soft); border-color: var(--accent-border); color: #A78BFA; }
+.tab svg { width: 15px; height: 15px; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; }
+
+.field { margin-bottom: 18px; }
+.field:last-of-type { margin-bottom: 0; }
+.label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 8px; }
+
+input[type=text], select, textarea {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; padding: 11px 14px;
+  outline: none; transition: border-color 0.15s; appearance: none; -webkit-appearance: none;
+}
+input[type=text]:focus, select:focus, textarea:focus { border-color: var(--accent-border); }
+input[type=text]::placeholder, textarea::placeholder { color: var(--text3); }
+textarea { min-height: 76px; resize: vertical; line-height: 1.5; }
+select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239997B0' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 500px) { .grid2 { grid-template-columns: 1fr; } }
+
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip { padding: 6px 13px; border-radius: 99px; border: 1px solid var(--border); background: transparent; color: var(--text2); font-size: 12px; font-family: 'Inter', sans-serif; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+.chip:hover { border-color: var(--border-hover); color: var(--text); }
+.chip.sel { background: var(--accent-soft); border-color: var(--accent-border); color: #C4B5FD; }
+
+.hook-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 480px) { .hook-grid { grid-template-columns: 1fr; } }
+.hook-card { padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface2); cursor: pointer; transition: all 0.15s; }
+.hook-card:hover { border-color: var(--border-hover); }
+.hook-card.sel { border-color: var(--accent-border); background: var(--accent-soft); }
+.hook-card .hn { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.hook-card .he { font-size: 11px; color: var(--text2); line-height: 1.4; font-style: italic; }
+.hook-card.sel .hn { color: #C4B5FD; }
+.hook-card.sel .he { color: #A78BFA; opacity: 0.8; }
+
+.brand-list { display: flex; flex-direction: column; gap: 8px; }
+.brand-item { display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface2); cursor: pointer; transition: all 0.15s; }
+.brand-item:hover { border-color: var(--border-hover); }
+.brand-item.sel { border-color: var(--accent-border); background: var(--accent-soft); }
+.brand-icon { flex-shrink: 0; margin-top: 1px; }
+.brand-icon svg { width: 18px; height: 18px; stroke: var(--text2); }
+.brand-item.sel .brand-icon svg { stroke: #A78BFA; }
+.brand-item .bt { font-size: 13px; font-weight: 600; color: var(--text); }
+.brand-item .bd { font-size: 12px; color: var(--text2); margin-top: 2px; line-height: 1.4; }
+.brand-item.sel .bt { color: #C4B5FD; }
+
+.tip { margin-top: 16px; padding: 12px 16px; background: var(--amber-soft); border: 1px solid rgba(245,158,11,0.2); border-radius: var(--radius-sm); font-size: 12px; color: #FCD34D; line-height: 1.6; }
+.tip strong { color: var(--amber); }
+
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px 20px; margin-top: 20px; border-radius: var(--radius); border: none; background: var(--accent); color: #fff; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.15s, transform 0.1s; letter-spacing: -0.01em; }
+.btn:hover { opacity: 0.88; }
+.btn:active { transform: scale(0.98); }
+.btn svg { width: 17px; height: 17px; stroke: #fff; }
+
+.qty-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.qty-btn { padding: 7px 16px; border-radius: 99px; border: 1px solid var(--border); background: transparent; color: var(--text2); font-size: 12px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.15s; }
+.qty-btn.sel { background: var(--accent-soft); border-color: var(--accent-border); color: #C4B5FD; }
+
+.edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 480px) { .edu-grid { grid-template-columns: 1fr; } }
+.edu-card { padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface2); cursor: pointer; transition: all 0.18s; text-align: left; width: 100%; font-family: 'Inter', sans-serif; }
+.edu-card:hover { border-color: var(--accent-border); background: var(--accent-soft); }
+.edu-card svg { width: 20px; height: 20px; stroke: var(--accent); margin-bottom: 10px; display: block; }
+.edu-card .et { font-size: 13px; font-weight: 600; color: var(--text); }
+.edu-card .ed { font-size: 12px; color: var(--text2); margin-top: 4px; line-height: 1.4; }
+
+.output-wrapper { margin-top: 16px; display: none; }
+.output-wrapper.show { display: block; }
+.output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.output-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); }
+.copy-btn { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 99px; border: 1px solid var(--border); background: transparent; color: var(--text2); font-size: 12px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.15s; }
+.copy-btn:hover { border-color: var(--border-hover); color: var(--text); }
+.copy-btn svg { width: 13px; height: 13px; }
+.output-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; font-size: 14px; color: var(--text); line-height: 1.75; white-space: pre-wrap; word-break: break-word; min-height: 60px; }
+.spinner { display: flex; align-items: center; gap: 10px; color: var(--text2); font-size: 13px; padding: 12px 0; }
+.spin { width: 16px; height: 16px; border: 2px solid var(--border-hover); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface3); border: 1px solid var(--border-hover); border-radius: 99px; padding: 10px 20px; font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 8px; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index: 999; pointer-events: none; white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- TELA DE API KEY -->
+<div id="api-screen" class="api-screen">
+  <div class="api-card">
+    <div class="api-logo">
+      <svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+    </div>
+    <h1>UGC Buddy</h1>
+    <p>Para começar, insira sua chave de API da Anthropic.<br/>Ela fica salva só no seu navegador e nunca é compartilhada.</p>
+    <div class="api-input-wrap">
+      <input type="password" id="api-key-input" placeholder="sk-ant-..." />
+      <button class="toggle-eye" onclick="toggleSenha()" type="button">
+        <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+    <div class="api-hint">
+      Não tem uma chave ainda? Acesse <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> para criar uma.
+    </div>
+    <div class="api-error" id="api-error">Chave inválida. Verifique e tente novamente.</div>
+    <button class="btn" onclick="salvarChave()" style="margin-top:0;">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      Entrar
+    </button>
+  </div>
+</div>
+
+<!-- APP PRINCIPAL -->
+<div id="app" style="display:none;">
+<div class="layout">
+  <div class="header">
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+    </div>
+    <div class="header-text">
+      <h1>UGC Buddy</h1>
+      <p>Seu assistente de conteúdo que converte</p>
+    </div>
+    <div class="header-right">
+      <button class="key-badge" onclick="trocarChave()">
+        <span class="key-dot"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Chave salva
+      </button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('roteiro', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Roteiro
+    </button>
+    <button class="tab" onclick="switchTab('hooks', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c-4.97 0-9-4.03-9-9V7l9-5 9 5v6c0 4.97-4.03 9-9 9z"/></svg>
+      Hooks
+    </button>
+    <button class="tab" onclick="switchTab('marca', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Análise de marca
+    </button>
+    <button class="tab" onclick="switchTab('email', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Prospecção
+    </button>
+    <button class="tab" onclick="switchTab('edu', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      Aprender
+    </button>
+  </div>
+
+  <!-- ROTEIRO -->
+  <div id="panel-roteiro" class="panel active">
+    <div class="card">
+      <div class="field"><label class="label">Produto ou serviço</label><input type="text" id="r-produto" placeholder="ex: sérum anti-manchas com vitamina C" /></div>
+      <div class="grid2">
+        <div class="field"><label class="label">Plataforma</label><select id="r-plataforma"><option>TikTok</option><option>Reels (Instagram)</option><option>YouTube Shorts</option><option>Meta Ads</option></select></div>
+        <div class="field"><label class="label">Duração</label><select id="r-duracao"><option>15–20 segundos</option><option>30 segundos</option><option>45–60 segundos</option><option>60–90 segundos</option></select></div>
+      </div>
+      <div class="field"><label class="label">Objetivo do vídeo</label><div class="chips"><span class="chip sel" onclick="toggleChip(this)">Gerar vendas</span><span class="chip" onclick="toggleChip(this)">Awareness</span><span class="chip" onclick="toggleChip(this)">Clique no link</span><span class="chip" onclick="toggleChip(this)">Cadastro / lead</span><span class="chip" onclick="toggleChip(this)">Engajamento</span></div></div>
+      <div class="field"><label class="label">Estilo do vídeo</label><div class="chips"><span class="chip sel" onclick="toggleChip(this)">Talking head</span><span class="chip" onclick="toggleChip(this)">POV / imersivo</span><span class="chip" onclick="toggleChip(this)">Demonstração</span><span class="chip" onclick="toggleChip(this)">Confessional</span><span class="chip" onclick="toggleChip(this)">Trending audio</span><span class="chip" onclick="toggleChip(this)">Antes e depois</span></div></div>
+      <div class="field"><label class="label">Público-alvo</label><input type="text" id="r-publico" placeholder="ex: mulheres 25–40 anos que lutam contra manchas" /></div>
+      <div class="field"><label class="label">Maior dor do cliente</label><textarea id="r-dor" placeholder="ex: se sente insegura com manchas no rosto e já tentou vários produtos sem resultado"></textarea></div>
+      <div class="field"><label class="label">Quantos roteiros?</label><div class="qty-row"><button class="qty-btn sel" id="qty-1" onclick="setQty(1)">1 roteiro</button><button class="qty-btn" id="qty-2" onclick="setQty(2)">2 ângulos</button><button class="qty-btn" id="qty-3" onclick="setQty(3)">3 variações A/B/C</button></div></div>
+      <div class="tip"><strong>Dica:</strong> quanto mais específica a dor do cliente, mais poderoso fica o roteiro. Pense no que a pessoa fala pra si mesma no espelho.</div>
+      <button class="btn" onclick="gerarRoteiro()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Gerar roteiro</button>
+    </div>
+    <div class="output-wrapper" id="out-roteiro"><div class="output-header"><span class="output-label">Resultado</span><button class="copy-btn" onclick="copiarTexto('out-roteiro-text')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div><div class="output-box" id="out-roteiro-text"></div></div>
+  </div>
+
+  <!-- HOOKS -->
+  <div id="panel-hooks" class="panel">
+    <div class="card">
+      <div class="field"><label class="label">Produto ou nicho</label><input type="text" id="h-produto" placeholder="ex: suplemento de colágeno para pele" /></div>
+      <div class="field"><label class="label">Tipos de hook para gerar</label>
+        <div class="hook-grid">
+          <div class="hook-card sel" onclick="toggleCard(this)"><div class="hn">Dor / problema</div><div class="he">"Se você também sofre com..."</div></div>
+          <div class="hook-card sel" onclick="toggleCard(this)"><div class="hn">Curiosidade</div><div class="he">"Ninguém te contou que..."</div></div>
+          <div class="hook-card sel" onclick="toggleCard(this)"><div class="hn">Resultado / prova</div><div class="he">"Em 7 dias eu tive..."</div></div>
+          <div class="hook-card" onclick="toggleCard(this)"><div class="hn">Identidade</div><div class="he">"POV: você é o tipo de pessoa que..."</div></div>
+          <div class="hook-card" onclick="toggleCard(this)"><div class="hn">Controvérsia</div><div class="he">"Opinião impopular sobre..."</div></div>
+          <div class="hook-card" onclick="toggleCard(this)"><div class="hn">Urgência</div><div class="he">"Se você não fizer isso antes de..."</div></div>
+        </div>
+      </div>
+      <div class="field"><label class="label">Quantidade</label><select id="h-qtd"><option>5 hooks</option><option>10 hooks</option><option>15 hooks</option><option>20 hooks</option></select></div>
+      <div class="tip"><strong>Por que isso importa:</strong> o hook é o primeiro 1–3 segundos do vídeo. Ele decide se a pessoa para ou continua scrollando.</div>
+      <button class="btn" onclick="gerarHooks()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Gerar hooks</button>
+    </div>
+    <div class="output-wrapper" id="out-hooks"><div class="output-header"><span class="output-label">Resultado</span><button class="copy-btn" onclick="copiarTexto('out-hooks-text')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div><div class="output-box" id="out-hooks-text"></div></div>
+  </div>
+
+  <!-- MARCA -->
+  <div id="panel-marca" class="panel">
+    <div class="card">
+      <div class="field"><label class="label">Nome da marca ou produto</label><input type="text" id="m-marca" placeholder="ex: Dove, Nubank, iFood..." /></div>
+      <div class="field"><label class="label">O que você quer descobrir?</label>
+        <div class="brand-list">
+          <div class="brand-item" onclick="toggleBrand(this)" data-tipo="posicionamento"><div class="brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="bt">Posicionamento e diferenciais</div><div class="bd">Como a marca se posiciona e o que a diferencia dos concorrentes</div></div></div>
+          <div class="brand-item" onclick="toggleBrand(this)" data-tipo="personas"><div class="brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><div class="bt">Personas e público-alvo</div><div class="bd">Perfil do cliente ideal, dores, motivadores e objeções</div></div></div>
+          <div class="brand-item" onclick="toggleBrand(this)" data-tipo="reviews"><div class="brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div><div class="bt">O que os clientes falam</div><div class="bd">Avaliações reais, elogios, reclamações e padrões de feedback</div></div></div>
+          <div class="brand-item" onclick="toggleBrand(this)" data-tipo="concorrentes"><div class="brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div><div class="bt">Análise competitiva</div><div class="bd">Quem são os concorrentes e onde a marca pode se destacar</div></div></div>
+          <div class="brand-item" onclick="toggleBrand(this)" data-tipo="angulos"><div class="brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div><div><div class="bt">Ângulos criativos para UGC</div><div class="bd">Ideias de abordagem para anúncios com base no perfil da marca</div></div></div>
+        </div>
+      </div>
+      <button class="btn" onclick="gerarAnalise()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Analisar marca</button>
+    </div>
+    <div class="output-wrapper" id="out-marca"><div class="output-header"><span class="output-label">Resultado</span><button class="copy-btn" onclick="copiarTexto('out-marca-text')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div><div class="output-box" id="out-marca-text"></div></div>
+  </div>
+
+  <!-- EMAIL -->
+  <div id="panel-email" class="panel">
+    <div class="card">
+      <div class="field"><label class="label">Marca que você quer abordar</label><input type="text" id="e-marca" placeholder="ex: Farm Rio, Simple Organic..." /></div>
+      <div class="field"><label class="label">Seu perfil como criador</label><textarea id="e-perfil" placeholder="ex: criadora de conteúdo de beleza, 12k seguidores no Instagram, foco em skincare natural"></textarea></div>
+      <div class="grid2">
+        <div class="field"><label class="label">Tom do e-mail</label><select id="e-tom"><option>Casual e direto</option><option>Profissional</option><option>Entusiasta / fan</option><option>Parceria estratégica</option></select></div>
+        <div class="field"><label class="label">Objetivo</label><select id="e-objetivo"><option>Parceria UGC paga</option><option>Permuta / produto</option><option>Collab de longo prazo</option><option>Trabalho de agência</option></select></div>
+      </div>
+      <div class="field"><label class="label">Diferencial seu (opcional)</label><input type="text" id="e-diferencial" placeholder="ex: alta taxa de conversão, nicho específico, portfólio forte" /></div>
+      <div class="tip"><strong>Segredo:</strong> os melhores e-mails mostram que você já conhece a marca e fazem uma proposta de valor clara — não apenas pedem uma parceria.</div>
+      <button class="btn" onclick="gerarEmail()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Criar e-mail</button>
+    </div>
+    <div class="output-wrapper" id="out-email"><div class="output-header"><span class="output-label">Resultado</span><button class="copy-btn" onclick="copiarTexto('out-email-text')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div><div class="output-box" id="out-email-text"></div></div>
+  </div>
+
+  <!-- EDU -->
+  <div id="panel-edu" class="panel">
+    <div class="card">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.7;">Clique em qualquer tema para receber uma explicação completa e prática:</p>
+      <div class="edu-grid">
+        <button class="edu-card" onclick="gerarEdu('como_comecar')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg><div class="et">Como começar no UGC</div><div class="ed">Do zero ao primeiro cliente</div></button>
+        <button class="edu-card" onclick="gerarEdu('precificacao')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><div class="et">Como cobrar e precificar</div><div class="ed">Pacotes, valores, como não se desvalorizar</div></button>
+        <button class="edu-card" onclick="gerarEdu('portfolio')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg><div class="et">Montando portfólio</div><div class="ed">Como criar sem clientes ainda</div></button>
+        <button class="edu-card" onclick="gerarEdu('direct_response')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><div class="et">Direct response e copy</div><div class="ed">Fundamentos de anúncios que convertem</div></button>
+        <button class="edu-card" onclick="gerarEdu('estrategias')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg><div class="et">Estratégias criativas</div><div class="ed">O que está funcionando agora</div></button>
+        <button class="edu-card" onclick="gerarEdu('clientes')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><div class="et">Encontrar e fechar clientes</div><div class="ed">Prospecção e como fechar contratos</div></button>
+      </div>
+    </div>
+    <div class="output-wrapper" id="out-edu"><div class="output-header"><span class="output-label">Resultado</span><button class="copy-btn" onclick="copiarTexto('out-edu-text')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div><div class="output-box" id="out-edu-text"></div></div>
+  </div>
+
+</div>
+</div>
+
+<div class="toast" id="toast"><span class="toast-dot"></span><span id="toast-msg">Copiado!</span></div>
+
+<script>
+let qty = 1;
+
+function getKey() { return localStorage.getItem('ugc_api_key') || ''; }
+
+function salvarChave() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val.startsWith('sk-ant-')) {
+    document.getElementById('api-error').style.display = 'block';
+    return;
+  }
+  localStorage.setItem('ugc_api_key', val);
+  document.getElementById('api-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+}
+
+function trocarChave() {
+  localStorage.removeItem('ugc_api_key');
+  document.getElementById('api-key-input').value = '';
+  document.getElementById('api-error').style.display = 'none';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('api-screen').style.display = 'flex';
+}
+
+function toggleSenha() {
+  const inp = document.getElementById('api-key-input');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (getKey()) {
+    document.getElementById('api-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  }
+});
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
+
+function toggleChip(el) { el.classList.toggle('sel'); }
+function toggleCard(el) { el.classList.toggle('sel'); }
+function toggleBrand(el) { el.classList.toggle('sel'); }
+
+function setQty(n) {
+  qty = n;
+  [1,2,3].forEach(i => document.getElementById('qty-' + i).classList.remove('sel'));
+  document.getElementById('qty-' + n).classList.add('sel');
+}
+
+function showLoading(id) {
+  const w = document.getElementById('out-' + id);
+  const b = document.getElementById('out-' + id + '-text');
+  w.classList.add('show');
+  b.innerHTML = '<div class="spinner"><div class="spin"></div><span>Gerando com IA...</span></div>';
+}
+
+function showOutput(id, text) {
+  document.getElementById('out-' + id + '-text').textContent = text;
+}
+
+async function callClaude(prompt, outputId) {
+  showLoading(outputId);
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': getKey(), 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1500,
+        system: 'Você é um especialista em UGC (User Generated Content), marketing de performance e criação de anúncios para redes sociais. Escreva sempre em português brasileiro natural, sem parecer robótico ou genérico. Seja específico, criativo e focado em conversão.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || 'Erro ao gerar resposta.';
+    showOutput(outputId, text);
+  } catch(e) {
+    showOutput(outputId, 'Erro de conexão. Verifique sua chave e tente novamente.');
+  }
+}
+
+function getChips(panelId, nth) {
+  const rows = document.getElementById(panelId).querySelectorAll('.chips');
+  if (!rows[nth]) return '';
+  return Array.from(rows[nth].querySelectorAll('.chip.sel')).map(c => c.textContent.trim()).join(', ');
+}
+
+function gerarRoteiro() {
+  const produto = document.getElementById('r-produto').value.trim();
+  if (!produto) { alert('Preencha o produto ou serviço.'); return; }
+  const plataforma = document.getElementById('r-plataforma').value;
+  const duracao = document.getElementById('r-duracao').value;
+  const publico = document.getElementById('r-publico').value.trim();
+  const dor = document.getElementById('r-dor').value.trim();
+  const objetivo = getChips('panel-roteiro', 0) || 'Gerar vendas';
+  const estilo = getChips('panel-roteiro', 1) || 'Talking head';
+  let p = `Crie ${qty===1?'um roteiro de UGC':qty===2?'2 roteiros UGC com ângulos diferentes':'3 roteiros UGC como variações A/B/C'} para:\n\nProduto: ${produto}\nPlataforma: ${plataforma}\nDuração: ${duracao}\nObjetivo: ${objetivo}\nEstilo: ${estilo}`;
+  if (publico) p += `\nPúblico-alvo: ${publico}`;
+  if (dor) p += `\nDor principal: ${dor}`;
+  p += `\n\nSiga a estrutura: Hook → Problema → Solução → Benefícios → Prova social → CTA. Escreva em português brasileiro coloquial e natural, como uma pessoa real falando. Inclua indicações de direção entre colchetes. No final, sugira uma legenda curta para o post.`;
+  callClaude(p, 'roteiro');
+}
+
+function gerarHooks() {
+  const produto = document.getElementById('h-produto').value.trim();
+  if (!produto) { alert('Preencha o produto ou nicho.'); return; }
+  const qtd = document.getElementById('h-qtd').value;
+  const tipos = Array.from(document.querySelectorAll('#panel-hooks .hook-card.sel')).map(c => c.querySelector('.hn').textContent).join(', ');
+  let p = `Gere ${qtd} hooks poderosos para vídeos curtos para: ${produto}.`;
+  if (tipos) p += `\nTipos: ${tipos}.`;
+  p += `\n\nCada hook deve ter no máximo 2 frases, ser impactante e fazer a pessoa parar de scrollar. Escreva em português brasileiro natural. Para cada hook explique em uma linha o gatilho mental que ele ativa.`;
+  callClaude(p, 'hooks');
+}
+
+function gerarAnalise() {
+  const marca = document.getElementById('m-marca').value.trim();
+  if (!marca) { alert('Preencha o nome da marca.'); return; }
+  const itens = Array.from(document.querySelectorAll('#panel-marca .brand-item.sel'));
+  if (!itens.length) { alert('Selecione pelo menos uma área de análise.'); return; }
+  const mapa = { posicionamento: 'Analise o posicionamento, os diferenciais competitivos e como a marca se comunica.', personas: 'Identifique personas, público-alvo, dores, motivadores e objeções.', reviews: 'Pesquise o que clientes reais falam — elogios, reclamações, padrões de linguagem.', concorrentes: 'Mapeie os principais concorrentes e onde a marca pode se diferenciar.', angulos: 'Sugira ângulos criativos específicos para UGC com essa marca.' };
+  let p = `Faça uma análise profunda da marca "${marca}" focada em UGC e marketing de performance.\n\n`;
+  itens.forEach(it => { if (mapa[it.dataset.tipo]) p += mapa[it.dataset.tipo] + '\n\n'; });
+  p += 'Apresente de forma clara e acionável, focado em criar anúncios que convertem.';
+  callClaude(p, 'marca');
+}
+
+function gerarEmail() {
+  const marca = document.getElementById('e-marca').value.trim();
+  if (!marca) { alert('Preencha o nome da marca.'); return; }
+  const perfil = document.getElementById('e-perfil').value.trim();
+  const tom = document.getElementById('e-tom').value;
+  const objetivo = document.getElementById('e-objetivo').value;
+  const diferencial = document.getElementById('e-diferencial').value.trim();
+  let p = `Crie um e-mail de prospecção para a marca "${marca}", tom ${tom.toLowerCase()}, objetivo: ${objetivo.toLowerCase()}.\n`;
+  if (perfil) p += `Perfil do criador: ${perfil}\n`;
+  if (diferencial) p += `Diferencial: ${diferencial}\n`;
+  p += `\nO e-mail deve ser natural, mostrar conhecimento da marca e ter uma proposta de valor clara com CTA específico. Inclua: (1) assunto com alta taxa de abertura, (2) corpo do e-mail, (3) versão curta para DM no Instagram.`;
+  callClaude(p, 'email');
+}
+
+const eduPrompts = {
+  como_comecar: 'Me explica como funciona o mercado de UGC do zero: o que é, como começar, quanto tempo leva para conseguir os primeiros clientes e o que preciso para montar meu portfólio inicial.',
+  precificacao: 'Como cobrar pelos meus serviços de UGC? Visão completa de precificação: pacotes, valores médios no Brasil, como aumentar minha taxa e como não me desvalorizar.',
+  portfolio: 'Como montar um portfólio de UGC do zero sem ter clientes? Passo a passo prático, incluindo como criar conteúdo de estudo sem permissão das marcas.',
+  direct_response: 'Me explica os fundamentos de marketing de resposta direta aplicados ao UGC: o que é direct response, frameworks de copywriting e como criar anúncios que convertem.',
+  estrategias: 'Quais são as estratégias criativas mais eficazes para UGC agora? Formatos que performam bem, como testar ângulos e como criar conteúdo que as marcas querem comprar.',
+  clientes: 'Como encontrar e fechar clientes como criador UGC? Estratégias de prospecção, plataformas onde marcas contratam criadores e como converter conversa em contrato.'
+};
+
+function gerarEdu(tipo) { callClaude(eduPrompts[tipo], 'edu'); }
+
+function copiarTexto(id) {
+  const el = document.getElementById(id);
+  if (!el || !el.textContent.trim()) return;
+  navigator.clipboard.writeText(el.textContent).then(() => showToast('Copiado com sucesso!')).catch(() => showToast('Erro ao copiar.'));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
